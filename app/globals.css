@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply text-gray-800 bg-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-saffron-400 hover:bg-saffron-500 text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200;
+  }
+  .btn-outline {
+    @apply border-2 border-saffron-400 text-saffron-500 hover:bg-saffron-400 hover:text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200;
+  }
+  .section-title {
+    @apply text-3xl font-bold text-gray-900 mb-2;
+  }
+  .section-subtitle {
+    @apply text-saffron-500 font-semibold uppercase tracking-widest text-sm mb-3;
+  }
+}
