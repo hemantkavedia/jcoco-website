@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const highlights = [
   { icon: "🕉️", title: "Sunday Pooja", desc: "Weekly pooja and pathshaala with light lunch, 10 AM – 1 PM ET." },
-  { icon: "📚", title: "Pathshaala", desc: "Religious education and language classes for children and adults." },
+  { icon: "📚", title: "Pathshala", desc: "Religious education and language classes for children and adults.", href: "/pathshala" },
   { icon: "🤝", title: "Community", desc: "A welcoming community practicing Jain philosophy since 1991." },
   { icon: "🎉", title: "Temple Events", desc: "Paryushan, Diwali, Mahavir Jayanti, and many more celebrations throughout the year." },
 ];
@@ -57,13 +57,24 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {highlights.map((h) => (
-              <div key={h.title} className="bg-saffron-50 rounded-xl p-6 text-center hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-3">{h.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2">{h.title}</h3>
-                <p className="text-gray-500 text-sm">{h.desc}</p>
-              </div>
-            ))}
+            {highlights.map((h) => {
+              const inner = (
+                <>
+                  <div className="text-4xl mb-3">{h.icon}</div>
+                  <h3 className="font-bold text-gray-900 mb-2">{h.title}</h3>
+                  <p className="text-gray-500 text-sm">{h.desc}</p>
+                </>
+              );
+              return h.href ? (
+                <Link key={h.title} href={h.href} className="bg-saffron-50 rounded-xl p-6 text-center hover:shadow-md hover:border-saffron-400 border-2 border-transparent transition-all">
+                  {inner}
+                </Link>
+              ) : (
+                <div key={h.title} className="bg-saffron-50 rounded-xl p-6 text-center hover:shadow-md transition-shadow">
+                  {inner}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

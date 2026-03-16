@@ -16,6 +16,7 @@ const links = [
     ],
   },
   { href: "/events", label: "Events" },
+  { href: "/pathshala", label: "Pathshala" },
   { href: "/media", label: "Media" },
   { href: "/contact", label: "Contact" },
   { href: "/membership", label: "Membership" },
