@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     canonical: "https://jcoco.org",
   },
   verification: {
-    google: "REPLACE_WITH_GOOGLE_VERIFICATION_TOKEN",
+    google: "czXsntOdczfydPmujNMcYuhGnNdDTJeZCDnoRqNZGvw",
   },
 };
 
