@@ -5,6 +5,7 @@ const highlights = [
   { icon: "🕉️", title: "Sunday Pooja", desc: "Weekly pooja and pathshaala with light lunch, 10 AM – 1 PM ET." },
   { icon: "📚", title: "Pathshaala", desc: "Religious education and language classes for children and adults." },
   { icon: "🤝", title: "Community", desc: "A welcoming community practicing Jain philosophy since 1991." },
+  { icon: "🎉", title: "Temple Events", desc: "Paryushan, Diwali, Mahavir Jayanti, and many more celebrations throughout the year." },
 ];
 
 export default function Home() {
