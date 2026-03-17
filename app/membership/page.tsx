@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PayPalButton from "@/components/PayPalButton";
 
 export const metadata = {
   title: "JCOCO Prime Membership | JCOCO",
@@ -45,14 +46,9 @@ export default function MembershipPage() {
               ))}
             </ul>
 
-            <a
-              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary w-full block text-center text-lg py-4"
-            >
-              Sign Up via PayPal
-            </a>
+            <div className="bg-saffron-50 rounded-xl p-4 flex justify-center">
+              <PayPalButton containerId="paypal-membership" />
+            </div>
             <p className="text-xs text-gray-400 mt-3">
               After payment, we will contact you to set up your membership benefits.
             </p>
