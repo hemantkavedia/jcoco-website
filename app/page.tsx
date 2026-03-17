@@ -27,9 +27,12 @@ export default function Home() {
             Jain Center of Central Ohio
           </p>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            Spreading Love, Spirit,<br />Faith &amp; Unity
+            Samyak Darshan. Samyak Gyan.<br />Samyak Charitra.
           </h1>
-          <p className="text-lg text-gray-200 mb-8">
+          <p className="text-lg text-gray-200 mb-2">
+            Right Faith &nbsp;·&nbsp; Right Knowledge &nbsp;·&nbsp; Right Conduct
+          </p>
+          <p className="text-base text-gray-300 mb-8">
             An Ohio Historic Landmark — practicing Jain philosophy since 1991.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
