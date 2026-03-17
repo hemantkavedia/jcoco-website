@@ -78,7 +78,7 @@ export default function Navbar() {
           ))}
           <li>
             <a
-              href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-sm py-2 px-4"
@@ -136,7 +136,7 @@ export default function Navbar() {
             ))}
             <li>
               <a
-                href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+                href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary block text-center text-sm"

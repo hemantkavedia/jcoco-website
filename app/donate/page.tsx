@@ -35,7 +35,7 @@ export default function DonatePage() {
               no PayPal account required.
             </p>
             <a
-              href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-saffron-400 hover:bg-saffron-500 text-white font-bold px-10 py-5 rounded-xl text-xl transition-colors shadow-md hover:shadow-lg"
@@ -63,7 +63,7 @@ export default function DonatePage() {
             {tiers.map((t) => (
               <a
                 key={t.amount}
-                href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+                href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md hover:border-saffron-400 border-2 border-transparent transition-all group"

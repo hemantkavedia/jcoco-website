@@ -46,7 +46,7 @@ export default function MembershipPage() {
             </ul>
 
             <a
-              href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary w-full block text-center text-lg py-4"

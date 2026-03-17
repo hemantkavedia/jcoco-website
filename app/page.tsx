@@ -38,7 +38,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/about" className="btn-primary">Learn About Us</Link>
             <a
-              href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-outline border-white text-white hover:bg-white hover:text-saffron-500"
@@ -121,7 +121,7 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a
-              href="https://www.paypal.com/donate/?hosted_button_id=JCOCO"
+              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-white text-saffron-500 hover:bg-saffron-50 font-bold px-8 py-4 rounded-lg text-lg transition-colors flex items-center gap-2"
