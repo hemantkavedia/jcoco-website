@@ -1,31 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Script from "next/script";
 
 const CLIENT_ID = "BAA8fMVeor0gI3MVZF-jmFEXolXGdCVTOFmoZ4xSpgBzfz5YwBwHjHMHXCHOhQQoZNL-IeJ-1D798McLhw";
 const BUTTON_ID = "C9ZVEWV3TK6Z8";
 
-export default function PayPalButton({ containerId = "paypal-donate-container" }: { containerId?: string }) {
-  useEffect(() => {
-    const render = () => {
-      const win = window as any;
-      if (win.paypal) {
-        win.paypal.HostedButtons({ hostedButtonId: BUTTON_ID }).render(`#${containerId}`);
-      }
-    };
+interface Props {
+  containerId?: string;
+}
 
-    // If SDK already loaded, render immediately
+export default function PayPalButton({ containerId = "paypal-donate-container" }: Props) {
+  const rendered = useRef(false);
+
+  const renderButton = () => {
     const win = window as any;
-    if (win.paypal) {
-      render();
-    } else {
-      document.addEventListener("paypal-sdk-ready", render, { once: true });
-    }
+    if (!win.paypal || rendered.current) return;
+    const el = document.getElementById(containerId);
+    if (!el || el.children.length > 0) return;
+    rendered.current = true;
+    win.paypal.HostedButtons({ hostedButtonId: BUTTON_ID }).render(`#${containerId}`);
+  };
 
-    return () => {
-      document.removeEventListener("paypal-sdk-ready", render);
-    };
+  useEffect(() => {
+    renderButton();
+    document.addEventListener("paypal-sdk-ready", renderButton, { once: true });
+    return () => document.removeEventListener("paypal-sdk-ready", renderButton);
   }, [containerId]);
 
   return (
@@ -33,9 +33,12 @@ export default function PayPalButton({ containerId = "paypal-donate-container" }
       <Script
         src={`https://www.paypal.com/sdk/js?client-id=${CLIENT_ID}&components=hosted-buttons&enable-funding=venmo&currency=USD`}
         crossOrigin="anonymous"
-        onLoad={() => document.dispatchEvent(new Event("paypal-sdk-ready"))}
+        onLoad={() => {
+          document.dispatchEvent(new Event("paypal-sdk-ready"));
+          renderButton();
+        }}
       />
-      <div id={containerId} className="min-h-[50px]" />
+      <div id={containerId} className="w-full" />
     </>
   );
 }

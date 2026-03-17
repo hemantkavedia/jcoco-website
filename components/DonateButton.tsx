@@ -1,11 +1,9 @@
 export default function DonateButton() {
   return (
     <a
-      href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
-      target="_blank"
-      rel="noopener noreferrer"
+      href="/donate"
       className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-saffron-400 hover:bg-saffron-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-      aria-label="Donate to JCOCO via PayPal"
+      aria-label="Donate to JCOCO"
     >
       {/* PayPal-style icon */}
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
