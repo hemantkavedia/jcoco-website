@@ -35,7 +35,7 @@ export default function AboutPage() {
         </div>
         <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-lg">
           <Image
-            src="https://jcoco.org/wp-content/uploads/2026/02/jcoco_temple_lg.jpeg"
+            src="/images/jcoco_temple_lg.jpeg"
             alt="JCOCO Temple"
             fill
             className="object-cover"
@@ -70,7 +70,7 @@ export default function AboutPage() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
         <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-lg">
           <Image
-            src="https://jcoco.org/wp-content/uploads/2026/02/samni_ji-1.jpg"
+            src="/images/samni_ji-1.jpg"
             alt="Spiritual Visit"
             fill
             className="object-cover object-top"

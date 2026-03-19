@@ -6,12 +6,12 @@ export const metadata = {
 };
 
 const gallery = [
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/jcoco_temple_lg.jpeg", alt: "JCOCO Temple" },
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/sangh_visit.jpg", alt: "Sangh Visit" },
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/samni_ji-1.jpg", alt: "Samni Ji Visit" },
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/ron_mcdonald_jcoco.jpg", alt: "Community Event" },
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/ExecutiveComm.jpg", alt: "Executive Committee" },
-  { src: "https://jcoco.org/wp-content/uploads/2026/02/temple_event_sd-scaled.jpg", alt: "Temple Event" },
+  { src: "/images/jcoco_temple_lg.jpeg", alt: "JCOCO Temple" },
+  { src: "/images/sangh_visit.jpg", alt: "Sangh Visit" },
+  { src: "/images/samni_ji-1.jpg", alt: "Samni Ji Visit" },
+  { src: "/images/ron_mcdonald_jcoco.jpg", alt: "Community Event" },
+  { src: "/images/ExecutiveComm.jpg", alt: "Executive Committee" },
+  { src: "/images/temple_event_sd-scaled.jpg", alt: "Temple Event" },
 ];
 
 export default function MediaPage() {

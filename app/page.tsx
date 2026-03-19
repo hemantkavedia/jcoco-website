@@ -17,7 +17,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative h-[85vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <Image
-          src="https://jcoco.org/wp-content/uploads/2026/02/jcoco_temple_lg.jpeg"
+          src="/images/jcoco_temple_lg.jpeg"
           alt="Jain Center of Central Ohio Temple"
           fill
           className="object-cover object-center"
@@ -104,7 +104,7 @@ export default function Home() {
           </div>
           <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-lg">
             <Image
-              src="https://jcoco.org/wp-content/uploads/2026/02/sangh_visit.jpg"
+              src="/images/sangh_visit.jpg"
               alt="JCOCO Community"
               fill
               className="object-cover"
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
           <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-lg">
             <Image
-              src="https://jcoco.org/wp-content/uploads/2026/02/temple_event_sd-scaled.jpg"
+              src="/images/temple_event_sd-scaled.jpg"
               alt="Temple Event"
               fill
               className="object-cover"

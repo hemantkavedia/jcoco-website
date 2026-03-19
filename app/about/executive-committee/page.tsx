@@ -31,7 +31,7 @@ export default function ExecutiveCommitteePage() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative h-64 md:h-80 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-lg mb-12">
           <Image
-            src="https://jcoco.org/wp-content/uploads/2026/02/ExecutiveComm.jpg"
+            src="/images/ExecutiveComm.jpg"
             alt="JCOCO Executive Committee"
             fill
             className="object-cover"
