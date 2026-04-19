@@ -57,7 +57,7 @@ export default function Footer() {
           <div className="flex gap-3">
             {[
               { label: "Facebook", href: "https://www.facebook.com/jaincenterofcentralohio", icon: "f" },
-              { label: "Instagram", href: "https://instagram.com", icon: "in" },
+              { label: "Instagram", href: "https://www.instagram.com/jaincenterofcentralohio/", icon: "in" },
               { label: "YouTube", href: "https://www.youtube.com/channel/UCHC46YQ4KXp3N8VgasAk_qw", icon: "yt" },
             ].map((s) => (
               <a

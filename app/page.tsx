@@ -40,14 +40,9 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/about" className="btn-primary">Learn About Us</Link>
-            <a
-              href="https://www.paypal.com/donate/?hosted_button_id=C9ZVEWV3TK6Z8"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline border-white text-white hover:bg-white hover:text-saffron-500"
-            >
+            <Link href="/donate" className="btn-outline border-white text-white hover:bg-white hover:text-saffron-500">
               Donate Now
-            </a>
+            </Link>
           </div>
         </div>
       </section>
