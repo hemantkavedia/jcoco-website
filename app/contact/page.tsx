@@ -61,7 +61,7 @@ export default function ContactPage() {
           {/* Embedded Google Map */}
           <div className="mt-8 rounded-xl overflow-hidden h-64 shadow-md">
             <iframe
-              src="https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=6683+S+Old+State+Rd,Lewis+Center,OH+43035"
+              src="https://maps.google.com/maps?q=6683+South+Old+State+Rd,+Lewis+Center,+OH+43035&output=embed"
               width="100%"
               height="100%"
               style={{ border: 0 }}
