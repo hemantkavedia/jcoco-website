@@ -81,8 +81,6 @@ function MemberPortal() {
 
     return () => subscription.unsubscribe();
   }, []);
-    return () => subscription.unsubscribe();
-  }, []);
 
   async function loadMemberData(u: User) {
     const { data: mapping } = await supabase
