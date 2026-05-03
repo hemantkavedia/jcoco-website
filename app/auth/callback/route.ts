@@ -16,27 +16,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies()
-    const response = NextResponse.redirect(`${origin}/member`)
 
     const supabase = createServerClient(
       SUPABASE_URL,
       SUPABASE_ANON_KEY,
       {
         cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
+          getAll() { return cookieStore.getAll() },
           setAll(cookiesToSet) {
-            // Set on both cookieStore and response
-            cookiesToSet.forEach(({ name, value, options }) => {
+            cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
-              response.cookies.set(name, value, {
-                ...options,
-                path: '/',
-                sameSite: 'lax',
-                secure: true,
-              })
-            })
+            )
           },
         },
       }
@@ -46,7 +36,44 @@ export async function GET(request: NextRequest) {
     console.log('[callback] exchange result:', data?.session?.user?.email, 'error:', exchangeError?.message)
 
     if (!exchangeError && data?.session) {
-      return response
+      const { access_token, refresh_token } = data.session
+
+      // Return HTML that stores tokens in localStorage then redirects
+      return new NextResponse(
+        `<!DOCTYPE html>
+<html>
+<head><title>Signing in...</title></head>
+<body>
+<p>Signing in, please wait...</p>
+<script>
+  const SUPABASE_URL = '${SUPABASE_URL}';
+  const SUPABASE_KEY = '${SUPABASE_ANON_KEY}';
+  const ACCESS_TOKEN = '${access_token}';
+  const REFRESH_TOKEN = '${refresh_token}';
+
+  // Store session in localStorage for Supabase client to pick up
+  const session = {
+    access_token: ACCESS_TOKEN,
+    refresh_token: REFRESH_TOKEN,
+    token_type: 'bearer',
+    expires_at: ${data.session.expires_at},
+    expires_in: ${data.session.expires_in},
+    user: ${JSON.stringify(data.session.user)}
+  };
+
+  const storageKey = 'sb-dfeccgfhbdtcydpjinaf-auth-token';
+  localStorage.setItem(storageKey, JSON.stringify(session));
+
+  // Redirect to member page
+  window.location.href = '/member';
+</script>
+</body>
+</html>`,
+        {
+          status: 200,
+          headers: { 'Content-Type': 'text/html' },
+        }
+      )
     }
   }
 
