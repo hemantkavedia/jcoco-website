@@ -60,6 +60,7 @@ export default function MemberPage() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
 
   useEffect(() => {
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -68,6 +69,19 @@ export default function MemberPage() {
         setLoading(false);
       }
     });
+
+    // Listen for auth state changes (catches post-OAuth redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        loadMemberData(session.user);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   async function loadMemberData(u: User) {
