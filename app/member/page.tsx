@@ -91,7 +91,7 @@ function MemberPortal() {
         .select("*")
         .ilike("email", u.email!)
         .single();
-      console.log("profileByEmail:", profileByEmail?.full_name, "error:", profileError?.message);
+      console.log("profileByEmail:", (profileByEmail as any)?.full_name, "error:", profileError?.message);
 
       if (profileByEmail) {
         const { error: insertError } = await supabase.from("auth_mapping").insert({
