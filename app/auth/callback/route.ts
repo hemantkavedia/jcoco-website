@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies()
+    const response = NextResponse.redirect(`${origin}/member`)
 
     const supabase = createServerClient(
       SUPABASE_URL,
@@ -26,9 +27,16 @@ export async function GET(request: NextRequest) {
             return cookieStore.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            // Set on both cookieStore and response
+            cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options)
-            )
+              response.cookies.set(name, value, {
+                ...options,
+                path: '/',
+                sameSite: 'lax',
+                secure: true,
+              })
+            })
           },
         },
       }
@@ -38,10 +46,6 @@ export async function GET(request: NextRequest) {
     console.log('[callback] exchange result:', data?.session?.user?.email, 'error:', exchangeError?.message)
 
     if (!exchangeError && data?.session) {
-      const response = NextResponse.redirect(`${origin}/member`)
-      cookieStore.getAll().forEach((cookie) => {
-        response.cookies.set(cookie.name, cookie.value, { path: '/', sameSite: 'lax' })
-      })
       return response
     }
   }
