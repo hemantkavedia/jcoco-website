@@ -76,34 +76,40 @@ function MemberPortal() {
   }, []);
 
   async function loadMemberData(u: User) {
-    const { data: mapping } = await supabase
+    console.log("loadMemberData for:", u.email, "uid:", u.id);
+
+    const { data: mapping, error: mappingError } = await supabase
       .from("auth_mapping")
       .select("profile_id")
       .eq("auth_uid", u.id)
       .single();
+    console.log("mapping:", mapping, "error:", mappingError?.message);
 
     if (!mapping) {
-      const { data: profileByEmail } = await supabase
+      const { data: profileByEmail, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .ilike("email", u.email!)
         .single();
+      console.log("profileByEmail:", profileByEmail?.full_name, "error:", profileError?.message);
 
       if (profileByEmail) {
-        await supabase.from("auth_mapping").insert({
+        const { error: insertError } = await supabase.from("auth_mapping").insert({
           auth_uid: u.id,
           profile_id: profileByEmail.id,
           email: u.email,
         });
+        console.log("auth_mapping insert error:", insertError?.message);
         setProfile(profileByEmail);
         await loadHouseholdData(profileByEmail.household_id);
       }
     } else {
-      const { data: prof } = await supabase
+      const { data: prof, error: profError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", mapping.profile_id)
         .single();
+      console.log("prof by mapping:", prof?.full_name, "error:", profError?.message);
       setProfile(prof);
       if (prof) await loadHouseholdData(prof.household_id);
     }
