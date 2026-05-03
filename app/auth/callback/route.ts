@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -9,9 +11,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/member?error=${error}`)
   }
 
-  // Pass code back to member page — client has the verifier in localStorage
   if (code) {
-    return NextResponse.redirect(`${origin}/member?code=${code}`)
+    const cookieStore = await cookies()
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (!exchangeError) {
+      const response = NextResponse.redirect(`${origin}/member`)
+      // Copy cookies to response
+      cookieStore.getAll().forEach((cookie) => {
+        response.cookies.set(cookie.name, cookie.value, { path: '/' })
+      })
+      return response
+    }
   }
 
   return NextResponse.redirect(`${origin}/member`)
