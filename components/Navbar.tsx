@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 const links = [
   { href: "/", label: "Home" },
@@ -20,11 +22,26 @@ const links = [
   { href: "/media", label: "Media" },
   { href: "/contact", label: "Contact" },
   { href: "/membership", label: "Membership" },
-  { href: "/member", label: "Member Login" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setUser(null);
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -77,11 +94,42 @@ export default function Navbar() {
               )}
             </li>
           ))}
+
+          {/* Auth link */}
+          {user ? (
+            <li className="relative group">
+              <button className="text-gray-700 hover:text-saffron-500 font-medium transition-colors flex items-center gap-1">
+                👤 {user.email?.split("@")[0]}
+                <svg className="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <ul className="absolute top-full right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                <li>
+                  <Link href="/member" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-saffron-50 hover:text-saffron-500">
+                    My Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-saffron-50 hover:text-saffron-500"
+                  >
+                    Sign Out
+                  </button>
+                </li>
+              </ul>
+            </li>
+          ) : (
+            <li>
+              <Link href="/member" className="text-gray-700 hover:text-saffron-500 font-medium transition-colors">
+                Member Login
+              </Link>
+            </li>
+          )}
+
           <li>
-            <a
-              href="/donate"
-              className="btn-primary text-sm py-2 px-4"
-            >
+            <a href="/donate" className="btn-primary text-sm py-2 px-4">
               Donate Now
             </a>
           </li>
@@ -133,11 +181,28 @@ export default function Navbar() {
                 )}
               </li>
             ))}
+            {user ? (
+              <>
+                <li>
+                  <Link href="/member" className="block text-gray-700 hover:text-saffron-500 font-medium py-1" onClick={() => setOpen(false)}>
+                    My Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <button onClick={handleSignOut} className="block text-gray-700 hover:text-saffron-500 font-medium py-1">
+                    Sign Out
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <Link href="/member" className="block text-gray-700 hover:text-saffron-500 font-medium py-1" onClick={() => setOpen(false)}>
+                  Member Login
+                </Link>
+              </li>
+            )}
             <li>
-              <a
-                href="/donate"
-                className="btn-primary block text-center text-sm"
-              >
+              <a href="/donate" className="btn-primary block text-center text-sm">
                 Donate Now
               </a>
             </li>
