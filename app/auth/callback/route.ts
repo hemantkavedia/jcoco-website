@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  
-  // Pass the code to the member page to handle client-side
-  if (code) {
-    return NextResponse.redirect(`${origin}/member?code=${code}`)
+  const error = searchParams.get('error')
+
+  if (error) {
+    return NextResponse.redirect('https://jcoco.org/member?error=' + error)
   }
 
-  return NextResponse.redirect(`${origin}/member`)
+  if (code) {
+    // Pass code to member page - client will exchange it
+    return NextResponse.redirect('https://jcoco.org/member?code=' + code)
+  }
+
+  return NextResponse.redirect('https://jcoco.org/member')
 }
