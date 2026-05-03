@@ -60,52 +60,27 @@ function MemberPortal() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
 
   useEffect(() => {
-    async function init() {
-      // Manually parse hash tokens if present
-      if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
-        console.log("Hash tokens detected, setting session...");
-        const hash = window.location.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        const accessToken = params.get("access_token");
-        const refreshToken = params.get("refresh_token");
-        if (accessToken && refreshToken) {
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          console.log("setSession result:", data?.session?.user?.email, error?.message);
-          window.history.replaceState({}, "", "/member");
-          if (data?.session?.user) {
-            setUser(data.session.user);
-            await loadMemberData(data.session.user);
-            return;
-          }
-        }
-      }
-
-      const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Session check:", session?.user?.email, error?.message);
-      if (session?.user) {
-        setUser(session.user);
-        await loadMemberData(session.user);
-      } else {
-        setLoading(false);
-      }
-    }
-
-    init();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth event:", event, session?.user?.email);
-      if (session?.user) {
+      console.log("Auth event:", event, session?.user?.email ?? "no user");
+      if (event === "SIGNED_IN" && session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
+      } else if (event === "INITIAL_SESSION") {
+        if (session?.user) {
+          setUser(session.user);
+          await loadMemberData(session.user);
+        } else {
+          setLoading(false);
+        }
       } else if (event === "SIGNED_OUT") {
         setUser(null);
+        setProfile(null);
         setLoading(false);
       }
     });
 
+    return () => subscription.unsubscribe();
+  }, []);
     return () => subscription.unsubscribe();
   }, []);
 
@@ -180,7 +155,7 @@ function MemberPortal() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://jcoco.org/auth/callback",
+        redirectTo: "https://jcoco.org/member",
       },
     });
   }
