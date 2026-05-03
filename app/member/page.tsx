@@ -62,10 +62,26 @@ function MemberPortal() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const code = searchParams.get("code");
+    const debug = searchParams.get("debug");
+    if (debug) console.log("Debug param:", debug);
+
     async function init() {
-      // getSession will automatically detect the session from the URL hash or cookie
+      // Try client-side code exchange if server failed
+      if (code) {
+        console.log("Exchanging code client-side...");
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        console.log("Client exchange result:", data?.session?.user?.email, error?.message);
+        if (data?.session?.user) {
+          setUser(data.session.user);
+          await loadMemberData(data.session.user);
+          window.history.replaceState({}, "", "/member");
+          return;
+        }
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Session check:", session?.user?.email, error);
+      console.log("Session check:", session?.user?.email, error?.message);
       if (session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
@@ -81,13 +97,14 @@ function MemberPortal() {
       if (session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
-      } else {
+      } else if (event === "SIGNED_OUT") {
         setUser(null);
         setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
+  }, [searchParams]);
   }, []);
 
   async function loadMemberData(u: User) {
