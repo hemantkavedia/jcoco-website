@@ -2,13 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 
+const SUPABASE_URL = 'https://dfeccgfhbdtcydpjinaf.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZWNjZ2ZoYmR0Y3lkcGppbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzA0NzgsImV4cCI6MjA5MzQwNjQ3OH0.a04d04KIq37nPoDsRLPusZiaMM0oFB_IEAL_osAHpVE'
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')
-
-  console.log('[callback] code present:', !!code, 'error:', error)
-  console.log('[callback] all cookies:', request.cookies.getAll().map(c => c.name))
 
   if (error) {
     return NextResponse.redirect(`${origin}/member?error=${error}`)
@@ -16,12 +16,10 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies()
-    
-    console.log('[callback] cookieStore cookies:', cookieStore.getAll().map(c => c.name))
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll() {
