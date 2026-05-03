@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -50,7 +50,7 @@ type Event = {
   summary: string;
 };
 
-export default function MemberPage() {
+function MemberPortal() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
@@ -522,5 +522,20 @@ export default function MemberPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function MemberPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🕉️</div>
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </div>
+    }>
+      <MemberPortal />
+    </Suspense>
   );
 }
