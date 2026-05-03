@@ -7,12 +7,17 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const error = searchParams.get('error')
 
+  console.log('[callback] code present:', !!code, 'error:', error)
+  console.log('[callback] all cookies:', request.cookies.getAll().map(c => c.name))
+
   if (error) {
     return NextResponse.redirect(`${origin}/member?error=${error}`)
   }
 
   if (code) {
     const cookieStore = await cookies()
+    
+    console.log('[callback] cookieStore cookies:', cookieStore.getAll().map(c => c.name))
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,13 +36,13 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (!exchangeError) {
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    console.log('[callback] exchange result:', data?.session?.user?.email, 'error:', exchangeError?.message)
+
+    if (!exchangeError && data?.session) {
       const response = NextResponse.redirect(`${origin}/member`)
-      // Copy cookies to response
       cookieStore.getAll().forEach((cookie) => {
-        response.cookies.set(cookie.name, cookie.value, { path: '/' })
+        response.cookies.set(cookie.name, cookie.value, { path: '/', sameSite: 'lax' })
       })
       return response
     }
