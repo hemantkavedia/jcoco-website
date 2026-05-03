@@ -86,7 +86,7 @@ function MemberPortal() {
       const { data: profileByEmail } = await supabase
         .from("profiles")
         .select("*")
-        .eq("email", u.email!)
+        .ilike("email", u.email!)
         .single();
 
       if (profileByEmail) {
