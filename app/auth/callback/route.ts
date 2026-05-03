@@ -29,11 +29,24 @@ export async function GET(request: NextRequest) {
         },
       }
     )
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-    if (!exchangeError) {
-      return NextResponse.redirect(`${origin}/member`)
+
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (!exchangeError && data.session) {
+      // Pass tokens in URL so browser client can pick them up directly
+      const redirectUrl = new URL(`${origin}/member`)
+      redirectUrl.hash = `access_token=${data.session.access_token}&refresh_token=${data.session.refresh_token}&token_type=bearer&type=recovery`
+      
+      const response = NextResponse.redirect(redirectUrl.toString())
+      
+      // Also set cookies on the response
+      cookieStore.getAll().forEach(cookie => {
+        response.cookies.set(cookie.name, cookie.value)
+      })
+      
+      return response
     }
   }
 
-  return NextResponse.redirect(`${origin}/member?error=auth_error`)
+  return NextResponse.redirect(`${origin}/member`)
 }
