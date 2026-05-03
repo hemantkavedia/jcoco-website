@@ -62,17 +62,10 @@ function MemberPortal() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-
     async function init() {
-      // If we have a code in URL, exchange it for a session first
-      if (code) {
-        await supabase.auth.exchangeCodeForSession(code);
-        // Clean up URL
-        window.history.replaceState({}, "", "/member");
-      }
-
-      const { data: { session } } = await supabase.auth.getSession();
+      // getSession will automatically detect the session from the URL hash or cookie
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Session check:", session?.user?.email, error);
       if (session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
@@ -83,10 +76,11 @@ function MemberPortal() {
 
     init();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth event:", event, session?.user?.email);
       if (session?.user) {
         setUser(session.user);
-        loadMemberData(session.user);
+        await loadMemberData(session.user);
       } else {
         setUser(null);
         setLoading(false);
@@ -94,7 +88,7 @@ function MemberPortal() {
     });
 
     return () => subscription.unsubscribe();
-  }, [searchParams]);
+  }, []);
 
   async function loadMemberData(u: User) {
     // Get auth mapping -> profile
@@ -174,7 +168,7 @@ function MemberPortal() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `https://jcoco.org/auth/callback`,
+        redirectTo: `https://jcoco.org/member`,
       },
     });
   }
