@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -58,20 +59,43 @@ function MemberPortal() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    async function init() {
+      const code = searchParams.get("code");
+
+      if (code) {
+        console.log("PKCE code found, exchanging client-side...");
+        // Client has the verifier in localStorage — exchange here
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        console.log("Exchange result:", data?.session?.user?.email, error?.message);
+        window.history.replaceState({}, "", "/member");
+        if (data?.session?.user) {
+          setUser(data.session.user);
+          await loadMemberData(data.session.user);
+          return;
+        }
+      }
+
+      // Check existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Existing session:", session?.user?.email ?? "none");
+      if (session?.user) {
+        setUser(session.user);
+        await loadMemberData(session.user);
+      } else {
+        setLoading(false);
+      }
+    }
+
+    init();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth event:", event, session?.user?.email ?? "no user");
       if (event === "SIGNED_IN" && session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
-      } else if (event === "INITIAL_SESSION") {
-        if (session?.user) {
-          setUser(session.user);
-          await loadMemberData(session.user);
-        } else {
-          setLoading(false);
-        }
       } else if (event === "SIGNED_OUT") {
         setUser(null);
         setProfile(null);
@@ -80,7 +104,7 @@ function MemberPortal() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [searchParams]);
 
   async function loadMemberData(u: User) {
     const { data: mapping } = await supabase
@@ -153,7 +177,7 @@ function MemberPortal() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://jcoco.org/member",
+        redirectTo: "https://jcoco.org/auth/callback",
       },
     });
   }
