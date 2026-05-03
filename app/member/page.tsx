@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -59,24 +58,29 @@ function MemberPortal() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    const debug = searchParams.get("debug");
-    if (debug) console.log("Debug param:", debug);
-
     async function init() {
-      // Try client-side code exchange if server failed
-      if (code) {
-        console.log("Exchanging code client-side...");
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        console.log("Client exchange result:", data?.session?.user?.email, error?.message);
-        if (data?.session?.user) {
-          setUser(data.session.user);
-          await loadMemberData(data.session.user);
+      // Manually parse hash tokens if present
+      if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
+        console.log("Hash tokens detected, setting session...");
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        if (accessToken && refreshToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          console.log("setSession result:", data?.session?.user?.email, error?.message);
+          // Clean up URL hash
           window.history.replaceState({}, "", "/member");
-          return;
+          if (data?.session?.user) {
+            setUser(data.session.user);
+            await loadMemberData(data.session.user);
+            return;
+          }
         }
       }
 
@@ -104,10 +108,7 @@ function MemberPortal() {
     });
 
     return () => subscription.unsubscribe();
-  }, [searchParams]);
   }, []);
-
-  async function loadMemberData(u: User) {
     // Get auth mapping -> profile
     const { data: mapping } = await supabase
       .from("auth_mapping")
