@@ -17,31 +17,37 @@ const albums = [
     title: "JCOCO MJK 2026",
     url: "https://photos.app.goo.gl/ytZGsJzonCDzYoSs8",
     year: "2026",
-    cover: "/images/jcoco_temple_lg.jpeg",
+    cover: "/images/albums/album_mjk2026.jpg",
   },
   {
     title: "Worthington Interfaith Event",
     url: "https://photos.app.goo.gl/6PN3u9D9TS3Xm4Bw8",
     year: "2025",
-    cover: "/images/ron_mcdonald_jcoco.jpg",
+    cover: "/images/albums/album_interfaith2025.jpg",
   },
   {
     title: "Ahamgaj",
     url: "https://photos.app.goo.gl/KJnu1eteTsRqY7UW6",
     year: "2023",
-    cover: "/images/sangh_visit.jpg",
+    cover: "/images/albums/album_ahamgaj2023.jpg",
   },
   {
     title: "Pratishta",
     url: "https://photos.app.goo.gl/4i55ym9SVTU7Mmx59",
     year: "2012",
-    cover: "/images/temple_event_sd-scaled.jpg",
+    cover: "/images/albums/album_pratishta2012.jpg",
+  },
+  {
+    title: "Paryushan & Swapna Darshan",
+    url: "https://photos.app.goo.gl/F62uETjxmm3x8WE37",
+    year: "2012",
+    cover: "/images/albums/album_paryushan2012.jpg",
   },
   {
     title: "Bhumi Poojan",
     url: "https://photos.app.goo.gl/MBqCrdGMp7cbrpAu8",
     year: "2010",
-    cover: "/images/samni_ji-1.jpg",
+    cover: "/images/albums/album_bhumipoojan2010.jpg",
   },
 ];
 
