@@ -168,7 +168,7 @@ function MemberPortal() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `https://jcoco.org/member`,
+        redirectTo: `https://jcoco.org/auth/callback`,
       },
     });
   }
