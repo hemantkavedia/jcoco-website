@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -58,19 +59,30 @@ export default function MemberPage() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    const code = searchParams.get("code");
+
+    async function init() {
+      // If we have a code in URL, exchange it for a session first
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code);
+        // Clean up URL
+        window.history.replaceState({}, "", "/member");
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        loadMemberData(session.user);
+        setUser(session.user);
+        await loadMemberData(session.user);
       } else {
         setLoading(false);
       }
-    });
+    }
 
-    // Listen for auth state changes (catches post-OAuth redirect)
+    init();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
@@ -82,6 +94,7 @@ export default function MemberPage() {
     });
 
     return () => subscription.unsubscribe();
+  }, [searchParams]);
   }, []);
 
   async function loadMemberData(u: User) {
