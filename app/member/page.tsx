@@ -94,7 +94,7 @@ function MemberPortal() {
       console.log("profileByEmail:", (profileByEmail as any)?.full_name, "error:", profileError?.message);
 
       if (profileByEmail) {
-        const { error: insertError } = await supabase.from("auth_mapping").insert({
+        const { error: insertError } = await supabase.from("auth_mapping" as any).insert({
           auth_uid: u.id,
           profile_id: profileByEmail.id,
           email: u.email,
