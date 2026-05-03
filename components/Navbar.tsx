@@ -20,6 +20,7 @@ const links = [
   { href: "/media", label: "Media" },
   { href: "/contact", label: "Contact" },
   { href: "/membership", label: "Membership" },
+  { href: "/member", label: "Member Login" },
 ];
 
 export default function Navbar() {
