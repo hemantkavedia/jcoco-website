@@ -95,7 +95,6 @@ function MemberPortal() {
 
     return () => subscription.unsubscribe();
   }, [searchParams]);
-  }, []);
 
   async function loadMemberData(u: User) {
     // Get auth mapping -> profile
