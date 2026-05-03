@@ -61,12 +61,46 @@ function MemberPortal() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "events" | "pledges">("dashboard");
 
   useEffect(() => {
+    async function init() {
+      // Check for tokens in URL params (passed from auth callback)
+      const params = new URLSearchParams(window.location.search)
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+
+      if (accessToken && refreshToken) {
+        console.log("Tokens found in URL, storing in localStorage...")
+        // Store directly in localStorage in Supabase format
+        const storageKey = 'sb-dfeccgfhbdtcydpjinaf-auth-token'
+        const expiresAt = parseInt(params.get('expires_at') || '0')
+        localStorage.setItem(storageKey, JSON.stringify({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          token_type: 'bearer',
+          expires_at: expiresAt,
+        }))
+        // Clean URL
+        window.history.replaceState({}, '', '/member')
+      }
+
+      // Now get session
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log("Session after init:", session?.user?.email ?? "none")
+      if (session?.user) {
+        setUser(session.user)
+        await loadMemberData(session.user)
+      } else {
+        setLoading(false)
+      }
+    }
+
+    init()
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth event:", event, session?.user?.email ?? "no user");
       if (session?.user) {
         setUser(session.user);
         await loadMemberData(session.user);
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setProfile(null);
         setLoading(false);

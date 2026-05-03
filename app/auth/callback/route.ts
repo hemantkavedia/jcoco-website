@@ -33,47 +33,14 @@ export async function GET(request: NextRequest) {
     )
 
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-    console.log('[callback] exchange result:', data?.session?.user?.email, 'error:', exchangeError?.message)
 
     if (!exchangeError && data?.session) {
-      const { access_token, refresh_token } = data.session
-
-      // Return HTML that stores tokens in localStorage then redirects
-      return new NextResponse(
-        `<!DOCTYPE html>
-<html>
-<head><title>Signing in...</title></head>
-<body>
-<p>Signing in, please wait...</p>
-<script>
-  const SUPABASE_URL = '${SUPABASE_URL}';
-  const SUPABASE_KEY = '${SUPABASE_ANON_KEY}';
-  const ACCESS_TOKEN = '${access_token}';
-  const REFRESH_TOKEN = '${refresh_token}';
-
-  // Store session in localStorage for Supabase client to pick up
-  const session = {
-    access_token: ACCESS_TOKEN,
-    refresh_token: REFRESH_TOKEN,
-    token_type: 'bearer',
-    expires_at: ${data.session.expires_at},
-    expires_in: ${data.session.expires_in},
-    user: ${JSON.stringify(data.session.user)}
-  };
-
-  const storageKey = 'sb-dfeccgfhbdtcydpjinaf-auth-token';
-  localStorage.setItem(storageKey, JSON.stringify(session));
-
-  // Redirect to member page
-  window.location.href = '/member';
-</script>
-</body>
-</html>`,
-        {
-          status: 200,
-          headers: { 'Content-Type': 'text/html' },
-        }
-      )
+      // Pass tokens in URL params (not hash) so member page can read them
+      const url = new URL(`${origin}/member`)
+      url.searchParams.set('access_token', data.session.access_token)
+      url.searchParams.set('refresh_token', data.session.refresh_token)
+      url.searchParams.set('expires_at', String(data.session.expires_at))
+      return NextResponse.redirect(url.toString())
     }
   }
 
