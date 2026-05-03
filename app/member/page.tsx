@@ -74,7 +74,6 @@ function MemberPortal() {
             refresh_token: refreshToken,
           });
           console.log("setSession result:", data?.session?.user?.email, error?.message);
-          // Clean up URL hash
           window.history.replaceState({}, "", "/member");
           if (data?.session?.user) {
             setUser(data.session.user);
@@ -109,7 +108,8 @@ function MemberPortal() {
 
     return () => subscription.unsubscribe();
   }, []);
-    // Get auth mapping -> profile
+
+  async function loadMemberData(u: User) {
     const { data: mapping } = await supabase
       .from("auth_mapping")
       .select("profile_id")
@@ -117,7 +117,6 @@ function MemberPortal() {
       .single();
 
     if (!mapping) {
-      // New user — try to match by email
       const { data: profileByEmail } = await supabase
         .from("profiles")
         .select("*")
@@ -125,7 +124,6 @@ function MemberPortal() {
         .single();
 
       if (profileByEmail) {
-        // Create mapping
         await supabase.from("auth_mapping").insert({
           auth_uid: u.id,
           profile_id: profileByEmail.id,
@@ -144,7 +142,6 @@ function MemberPortal() {
       if (prof) await loadHouseholdData(prof.household_id);
     }
 
-    // Load upcoming events
     const { data: events } = await supabase
       .from("events")
       .select("id, name, event_date, event_time, location, summary")
@@ -157,7 +154,6 @@ function MemberPortal() {
   }
 
   async function loadHouseholdData(householdId: number) {
-    // Membership
     const { data: mem } = await supabase
       .from("memberships")
       .select("*")
@@ -165,7 +161,6 @@ function MemberPortal() {
       .single();
     setMembership(mem);
 
-    // Pledges
     const { data: pl } = await supabase
       .from("pledges")
       .select("*")
@@ -173,7 +168,6 @@ function MemberPortal() {
       .order("year", { ascending: false });
     setPledges(pl ?? []);
 
-    // Door code
     const { data: code } = await supabase
       .from("door_codes")
       .select("code, valid_until")
@@ -186,7 +180,7 @@ function MemberPortal() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `https://jcoco.org/auth/callback`,
+        redirectTo: "https://jcoco.org/auth/callback",
       },
     });
   }
@@ -196,6 +190,8 @@ function MemberPortal() {
     setUser(null);
     setProfile(null);
     setMembership(null);
+    setPledges([]);
+    setDoorCode(null);
   }
 
   if (loading) {
@@ -209,7 +205,6 @@ function MemberPortal() {
     );
   }
 
-  // Not logged in
   if (!user) {
     return (
       <>
@@ -247,7 +242,6 @@ function MemberPortal() {
     );
   }
 
-  // Logged in but no profile match
   if (!profile) {
     return (
       <>
@@ -262,13 +256,9 @@ function MemberPortal() {
               We couldn&apos;t find a JCOCO membership linked to <strong>{user.email}</strong>.
               Please contact us to get your account set up.
             </p>
-            <a href="mailto:info@jcoco.org" className="btn-primary inline-block mb-4">
-              Contact Us
-            </a>
+            <a href="mailto:info@jcoco.org" className="btn-primary inline-block mb-4">Contact Us</a>
             <br />
-            <button onClick={handleSignOut} className="text-sm text-gray-400 hover:text-gray-600 underline">
-              Sign out
-            </button>
+            <button onClick={handleSignOut} className="text-sm text-gray-400 hover:text-gray-600 underline">Sign out</button>
           </div>
         </section>
       </>
@@ -286,7 +276,6 @@ function MemberPortal() {
         <p className="text-saffron-100 mt-1 text-sm">{user.email}</p>
       </section>
 
-      {/* Tabs */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 flex gap-1 overflow-x-auto">
           {(["dashboard", "profile", "events", "pledges"] as const).map((tab) => (
@@ -302,91 +291,57 @@ function MemberPortal() {
               {tab}
             </button>
           ))}
-          <button
-            onClick={handleSignOut}
-            className="ml-auto px-5 py-4 text-sm text-gray-400 hover:text-gray-600 whitespace-nowrap"
-          >
+          <button onClick={handleSignOut} className="ml-auto px-5 py-4 text-sm text-gray-400 hover:text-gray-600 whitespace-nowrap">
             Sign Out
           </button>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-10">
-
-        {/* DASHBOARD TAB */}
         {activeTab === "dashboard" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Membership Status */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Membership</p>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-gray-900 text-lg capitalize">{membership?.membership_type ?? "Member"}</span>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${statusColor}`}>
-                  {membership?.status ?? "Unknown"}
-                </span>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${statusColor}`}>{membership?.status ?? "Unknown"}</span>
               </div>
               {membership?.start_date && (
                 <p className="text-sm text-gray-500">Member since {new Date(membership.start_date).getFullYear()}</p>
               )}
-              <Link href="/membership" className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">
-                Renew Membership →
-              </Link>
+              <Link href="/membership" className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">Renew Membership →</Link>
             </div>
 
-            {/* Door Code */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Temple Access Code</p>
               {doorCode ? (
                 <>
                   <p className="text-4xl font-bold tracking-widest text-saffron-500 font-mono">{doorCode.code}</p>
-                  {doorCode.valid_until && (
-                    <p className="text-xs text-gray-400 mt-2">Valid until {new Date(doorCode.valid_until).toLocaleDateString()}</p>
-                  )}
+                  {doorCode.valid_until && <p className="text-xs text-gray-400 mt-2">Valid until {new Date(doorCode.valid_until).toLocaleDateString()}</p>}
                   <p className="text-xs text-gray-400 mt-1">🔒 Keep this code confidential</p>
                 </>
               ) : (
-                <p className="text-sm text-gray-500">No active door code. Contact us at <a href="mailto:info@jcoco.org" className="text-saffron-500 hover:underline">info@jcoco.org</a>.</p>
+                <p className="text-sm text-gray-500">No active door code. Contact <a href="mailto:info@jcoco.org" className="text-saffron-500 hover:underline">info@jcoco.org</a>.</p>
               )}
             </div>
 
-            {/* Pledge Summary */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                {new Date().getFullYear()} Pledge
-              </p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{new Date().getFullYear()} Pledge</p>
               {currentPledge ? (
                 <>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-500">Pledged</span>
-                    <span className="font-semibold">${currentPledge.pledge_amount.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-500">Paid</span>
-                    <span className="font-semibold text-green-600">${currentPledge.paid_amount.toFixed(2)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between text-sm">
-                    <span className="text-gray-500">Balance</span>
-                    <span className={`font-bold ${currentPledge.balance > 0 ? "text-red-500" : "text-green-600"}`}>
-                      ${currentPledge.balance.toFixed(2)}
-                    </span>
-                  </div>
+                  <div className="flex justify-between text-sm mb-2"><span className="text-gray-500">Pledged</span><span className="font-semibold">${currentPledge.pledge_amount.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-sm mb-2"><span className="text-gray-500">Paid</span><span className="font-semibold text-green-600">${currentPledge.paid_amount.toFixed(2)}</span></div>
+                  <div className="border-t pt-2 flex justify-between text-sm"><span className="text-gray-500">Balance</span><span className={`font-bold ${currentPledge.balance > 0 ? "text-red-500" : "text-green-600"}`}>${currentPledge.balance.toFixed(2)}</span></div>
                   <div className="mt-3 bg-gray-100 rounded-full h-2">
-                    <div
-                      className="bg-saffron-400 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(100, (currentPledge.paid_amount / currentPledge.pledge_amount) * 100)}%` }}
-                    />
+                    <div className="bg-saffron-400 h-2 rounded-full" style={{ width: `${Math.min(100, (currentPledge.paid_amount / currentPledge.pledge_amount) * 100)}%` }} />
                   </div>
                 </>
               ) : (
                 <p className="text-sm text-gray-500">No pledge recorded for {new Date().getFullYear()} yet.</p>
               )}
-              <button onClick={() => setActiveTab("pledges")} className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">
-                View All Pledges →
-              </button>
+              <button onClick={() => setActiveTab("pledges")} className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">View All Pledges →</button>
             </div>
 
-            {/* Upcoming Events */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Upcoming Events</p>
               {upcomingEvents.length > 0 ? (
@@ -394,12 +349,8 @@ function MemberPortal() {
                   {upcomingEvents.slice(0, 3).map(evt => (
                     <div key={evt.id} className="flex gap-3 items-start">
                       <div className="bg-saffron-50 rounded-lg p-2 text-center min-w-[48px]">
-                        <p className="text-xs text-saffron-500 font-bold">
-                          {new Date(evt.event_date).toLocaleString('default', { month: 'short' }).toUpperCase()}
-                        </p>
-                        <p className="text-lg font-bold text-saffron-600 leading-none">
-                          {new Date(evt.event_date).getDate()}
-                        </p>
+                        <p className="text-xs text-saffron-500 font-bold">{new Date(evt.event_date).toLocaleString("default", { month: "short" }).toUpperCase()}</p>
+                        <p className="text-lg font-bold text-saffron-600 leading-none">{new Date(evt.event_date).getDate()}</p>
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-tight">{evt.name}</p>
@@ -411,14 +362,11 @@ function MemberPortal() {
               ) : (
                 <p className="text-sm text-gray-500">No upcoming events scheduled.</p>
               )}
-              <button onClick={() => setActiveTab("events")} className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">
-                View All Events →
-              </button>
+              <button onClick={() => setActiveTab("events")} className="mt-4 inline-block text-sm text-saffron-500 hover:underline font-medium">View All Events →</button>
             </div>
           </div>
         )}
 
-        {/* PROFILE TAB */}
         {activeTab === "profile" && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 max-w-2xl">
             <h2 className="text-xl font-bold text-gray-900 mb-6">My Profile</h2>
@@ -442,13 +390,12 @@ function MemberPortal() {
               ))}
             </div>
             <p className="mt-8 text-sm text-gray-400">
-              To update your profile information, please contact us at{" "}
+              To update your profile, contact us at{" "}
               <a href="mailto:info@jcoco.org" className="text-saffron-500 hover:underline">info@jcoco.org</a>.
             </p>
           </div>
         )}
 
-        {/* EVENTS TAB */}
         {activeTab === "events" && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
@@ -457,19 +404,13 @@ function MemberPortal() {
                 {upcomingEvents.map(evt => (
                   <div key={evt.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex gap-5">
                     <div className="bg-saffron-50 rounded-xl p-3 text-center min-w-[60px]">
-                      <p className="text-xs text-saffron-500 font-bold">
-                        {new Date(evt.event_date).toLocaleString('default', { month: 'short' }).toUpperCase()}
-                      </p>
-                      <p className="text-2xl font-bold text-saffron-600 leading-none">
-                        {new Date(evt.event_date).getDate()}
-                      </p>
+                      <p className="text-xs text-saffron-500 font-bold">{new Date(evt.event_date).toLocaleString("default", { month: "short" }).toUpperCase()}</p>
+                      <p className="text-2xl font-bold text-saffron-600 leading-none">{new Date(evt.event_date).getDate()}</p>
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-gray-900">{evt.name}</h3>
-                      <p className="text-sm text-gray-500">{evt.location} {evt.event_time && `· ${evt.event_time}`}</p>
-                      {evt.summary && (
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{evt.summary}</p>
-                      )}
+                      <p className="text-sm text-gray-500">{evt.location}{evt.event_time && ` · ${evt.event_time}`}</p>
+                      {evt.summary && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{evt.summary}</p>}
                     </div>
                   </div>
                 ))}
@@ -483,7 +424,6 @@ function MemberPortal() {
           </div>
         )}
 
-        {/* PLEDGES TAB */}
         {activeTab === "pledges" && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-6">Pledge History</h2>
@@ -498,26 +438,12 @@ function MemberPortal() {
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-xs text-gray-400 mb-1">Pledged</p>
-                        <p className="font-bold text-gray-900">${p.pledge_amount.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400 mb-1">Paid</p>
-                        <p className="font-bold text-green-600">${p.paid_amount.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400 mb-1">Balance</p>
-                        <p className={`font-bold ${p.balance > 0 ? "text-red-500" : "text-green-600"}`}>
-                          ${p.balance.toFixed(2)}
-                        </p>
-                      </div>
+                      <div><p className="text-xs text-gray-400 mb-1">Pledged</p><p className="font-bold text-gray-900">${p.pledge_amount.toFixed(2)}</p></div>
+                      <div><p className="text-xs text-gray-400 mb-1">Paid</p><p className="font-bold text-green-600">${p.paid_amount.toFixed(2)}</p></div>
+                      <div><p className="text-xs text-gray-400 mb-1">Balance</p><p className={`font-bold ${p.balance > 0 ? "text-red-500" : "text-green-600"}`}>${p.balance.toFixed(2)}</p></div>
                     </div>
                     <div className="mt-4 bg-gray-100 rounded-full h-2">
-                      <div
-                        className="bg-saffron-400 h-2 rounded-full"
-                        style={{ width: `${Math.min(100, (p.paid_amount / p.pledge_amount) * 100)}%` }}
-                      />
+                      <div className="bg-saffron-400 h-2 rounded-full" style={{ width: `${Math.min(100, (p.paid_amount / p.pledge_amount) * 100)}%` }} />
                     </div>
                   </div>
                 ))}
