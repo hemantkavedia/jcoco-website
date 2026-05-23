@@ -14,6 +14,12 @@ const gallery = [
 
 const albums = [
   {
+    title: "Pathshala Yoga and Picnic 2026",
+    url: "https://photos.app.goo.gl/HF7JnBDmZV9AWJRj9",
+    year: "2026",
+    cover: "/images/albums/album_pathshala_yoga_picnic2026.jpg",
+  },
+  {
     title: "JCOCO MJK 2026",
     url: "https://photos.app.goo.gl/ytZGsJzonCDzYoSs8",
     year: "2026",
