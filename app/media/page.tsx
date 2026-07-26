@@ -14,6 +14,12 @@ const gallery = [
 
 const albums = [
   {
+    title: "JCOCO 14th Temple Anniversary Program",
+    url: "https://photos.app.goo.gl/YtCommaN2zJ1tbmL6",
+    year: "2026",
+    cover: "/images/albums/temple_anniversary_2026.jpg",
+  },
+  {
     title: "Pathshala Yoga and Picnic 2026",
     url: "https://photos.app.goo.gl/HF7JnBDmZV9AWJRj9",
     year: "2026",
