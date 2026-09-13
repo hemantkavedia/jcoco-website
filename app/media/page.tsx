@@ -14,6 +14,12 @@ const gallery = [
 
 const albums = [
   {
+    title: "Paryushan 2026",
+    url: "https://photos.app.goo.gl/RecTo3ZQNJbGkr6V6",
+    year: "2026",
+    cover: "/images/albums/paryushan_2026.jpg",
+  },
+  {
     title: "JCOCO 14th Temple Anniversary Program",
     url: "https://photos.app.goo.gl/YtCommaN2zJ1tbmL6",
     year: "2026",
